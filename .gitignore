@@ -3,6 +3,11 @@ venv/
 
 # Python cache files
 __pycache__/
+
+#prevent commiting keys
+.env
+App/my-blog-9faec-firebase-adminsdk-fbsvc-80314de43e.json
+
  dependencies
 /node_modules
 /.pnp
@@ -24,4 +29,3 @@ __pycache__/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
