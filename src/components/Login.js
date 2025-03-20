@@ -25,15 +25,36 @@ export default function Login() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
       setErrors({});
-      console.log("Sign In Successful", formData);
-      // Perform authentication logic here
+      try {
+        // Send login request to the Flask API
+        const response = await fetch("http://localhost:5000/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          alert("Signed in!");
+          console.log("Sign In Successful", data);
+          // Perform any other actions after successful login (e.g., redirect)
+        } else {
+          setErrors(data.errors || {});
+          console.log("Login failed", data);
+        }
+      } catch (err) {
+        console.error("Error during login:", err);
+        setErrors({ general: "An error occurred during login" });
+      }
     }
   };
 

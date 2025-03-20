@@ -5,6 +5,7 @@ export default function Signup() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -25,6 +26,7 @@ export default function Signup() {
     let newErrors = {};
     if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
     if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!formData.username.trim()) newErrors.username = "Username is required";
     if (!formData.email.includes("@")) newErrors.email = "Invalid email";
     if (formData.password.length < 6)
       newErrors.password = "Password must be at least 6 characters";
@@ -33,15 +35,40 @@ export default function Signup() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
       setErrors({});
+    try {
+      const response = await fetch("http://localhost:5000/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          username: formData.username,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Signup successful!");
       console.log("Form Submitted Successfully", formData);
-      // Perform authentication logic here
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to connect to the server.");
+}
     }
   };
 
@@ -97,6 +124,23 @@ export default function Signup() {
                 />
                 {errors.lastName && (
                   <p className="text-red-500 text-sm">{errors.lastName}</p>
+                )}
+              </div>
+
+              <div className="col-span-6 sm:col-span-3">
+                <label className="block text-sm font-medium text-gray-900">
+                  User Name
+                </label>
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  className="mt-1 w-full rounded-lg border px-4 py-2"
+                  placeholder="Enter your username"
+                />
+                {errors.username && (
+                  <p className="text-red-500 text-sm">{errors.username}</p>
                 )}
               </div>
 

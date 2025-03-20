@@ -10,15 +10,30 @@ export default function ForgotPassword() {
     setEmail(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email.includes("@")) {
       setError("Invalid email");
       return;
     }
+    try {
+      const response = await fetch("http://localhost:5000/api/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send reset link");
+      }
     setError("");
     setMessage("If an account with that email exists, a reset link has been sent.");
-    // Perform password reset logic here
+    } catch (err) {
+      setError(err.message);
+      setMessage("");
+    }
   };
 
   return (
