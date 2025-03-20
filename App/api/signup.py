@@ -18,12 +18,11 @@ def signup():
         if existing_user.exists:
             return jsonify({"error": "Username is already taken"}), 400
 
-        # Create user in Firebase Authentication
-        user = firebase_auth.create_user(
-            email=email,
-            password=password,
-            display_name=user_name
-        )
+        # Create user in Firebase Authentication using Pyrebase
+        user = firebase_auth.create_user_with_email_and_password(email, password)
+
+        # Send email verification
+        firebase_auth.send_email_verification(user['idToken'])
 
         # Store user details in Firestore
         user_data = {
@@ -34,7 +33,10 @@ def signup():
         }
         db.collection("users").document(user_name).set(user_data)
 
-        return jsonify({"message": "User created successfully", "uid": user.uid}), 201
+        return jsonify({
+            "message": "User created successfully. Please check your email for verification.",
+            "uid": user['localId']
+        }), 201
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
